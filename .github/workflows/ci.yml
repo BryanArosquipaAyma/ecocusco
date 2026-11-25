@@ -1,0 +1,27 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        carpeta: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # Mientras no exista package.json (Hito 1) no hay nada que probar.
+      - name: Lint y pruebas
+        working-directory: ${{ matrix.carpeta }}
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+            npm run lint --if-present
+            npm test --if-present
+          else
+            echo "Sin package.json todavía: se omite."
+          fi
